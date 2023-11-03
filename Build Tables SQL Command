@@ -1,0 +1,76 @@
+-- Drop existing tables if they exist to avoid conflicts
+DROP TABLE IF EXISTS Reports;
+DROP TABLE IF EXISTS Rooms;
+DROP TABLE IF EXISTS Properties;
+DROP TABLE IF EXISTS Owners;
+DROP TABLE IF EXISTS Residents;
+
+-- Create the Owners table
+CREATE TABLE Owners (
+    OwnerProfileID INT AUTO_INCREMENT PRIMARY KEY,
+    OwnerAccountNumber INT UNIQUE,
+    OwnerName VARCHAR(255),
+    PhoneNumber VARCHAR(50),
+    Email VARCHAR(255) UNIQUE,
+    CompanyName VARCHAR(255) UNIQUE,
+    PostalAddress TEXT
+) ENGINE=InnoDB;
+
+-- Create the Properties table
+CREATE TABLE Properties (
+    PropertyCode VARCHAR(50) PRIMARY KEY,
+    OwnerProfileID INT,
+    PropertyAddress TEXT,
+    NumberOfRooms INT,
+    FOREIGN KEY (OwnerProfileID) REFERENCES Owners(OwnerProfileID)
+) ENGINE=InnoDB;
+
+-- Create the Residents table
+CREATE TABLE Residents (
+    ResidentID INT AUTO_INCREMENT PRIMARY KEY,
+    AccountNumber INT UNIQUE,
+    Name VARCHAR(255),
+    DateOfBirth DATE,
+    Phone VARCHAR(50),
+    Email VARCHAR(255) UNIQUE,
+    ID VARCHAR(50),
+    CRN VARCHAR(50),
+    NextOfKin VARCHAR(255),
+    NextOfKinPhone VARCHAR(50),
+    DoorCode VARCHAR(50),
+    ReferredBy VARCHAR(255),
+    Notes TEXT,
+    LeaseTerm INT,
+    LeaseStart DATE,
+    LeaseEnd DATE,
+    RentRate DECIMAL(10, 2)
+) ENGINE=InnoDB;
+
+-- Create the Rooms table
+CREATE TABLE Rooms (
+    RoomCode VARCHAR(50) PRIMARY KEY,
+    PropertyCode VARCHAR(50),
+    MaxOccupants INT,
+    Inventory TEXT,
+    OccupancyStatus ENUM('Yes', 'No'),
+    AdvertisedRent DECIMAL(10, 2),
+    InventorySecurityDeposit DECIMAL(10, 2),
+    FOREIGN KEY (PropertyCode) REFERENCES Properties(PropertyCode)
+) ENGINE=InnoDB;
+
+-- Create the Reports table
+CREATE TABLE Reports (
+    ReportNumber VARCHAR(50) PRIMARY KEY,
+    ResidentID INT,
+    RoomCode VARCHAR(50),
+    ReportDetails TEXT,
+    Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ResidentID) REFERENCES Residents(ResidentID),
+    FOREIGN KEY (RoomCode) REFERENCES Rooms(RoomCode)
+) ENGINE=InnoDB;
+
+-- Indexes for improved search performance
+CREATE INDEX idx_owner_account_number ON Owners(OwnerAccountNumber);
+CREATE INDEX idx_property_code ON Properties(PropertyCode);
+CREATE INDEX idx_resident_account_number ON Residents(AccountNumber);
+CREATE INDEX idx_room_code ON Rooms(RoomCode);
